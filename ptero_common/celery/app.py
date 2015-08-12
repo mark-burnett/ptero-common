@@ -1,6 +1,7 @@
 import celery
 import os
 
+
 def celery_app(main, task_path, routes, broker_url=None, track_started=False):
     app = celery.Celery(main, include=task_path)
 

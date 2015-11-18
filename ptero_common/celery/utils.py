@@ -46,7 +46,7 @@ def _get_formatter(config_name):
     return _FORMATTERS.get(config_name, _default_formatter)
 
 
-def get_config_from_env(service_name):
+def _get_config_from_env(service_name):
     result = {}
     for env_var_name, env_var_value in os.environ.iteritems():
         if re.match('PTERO_%s_CELERY' % service_name, env_var_name):
@@ -60,3 +60,15 @@ def get_config_from_env(service_name):
                     config_name, str(config_value), env_var_name, env_var_value)
 
     return result
+
+
+def get_celery_config(service_name):
+    config = _get_config_from_env(service_name)
+    config.update({
+        'BROKER_TRANSPORT_OPTIONS': {'confirm_publish': True},
+        'CELERY_ACCEPT_CONTENT': ['json'],
+        'CELERY_ACKS_LATE': True,
+        'CELERY_RESULT_SERIALIZER': 'json',
+        'CELERY_TASK_SERIALIZER': 'json',
+        })
+    return config

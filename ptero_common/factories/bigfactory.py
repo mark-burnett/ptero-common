@@ -12,7 +12,7 @@ class BigFactory(CeleryFactoryMixin, DBFactoryMixin):
         self._initialized = False
 
     @abc.abstractproperty
-    def backend(self):
+    def backend_class(self):
         pass
 
     @abc.abstractproperty
@@ -22,7 +22,7 @@ class BigFactory(CeleryFactoryMixin, DBFactoryMixin):
     def create_backend(self):
         self._initialize()
         self.db_revision = self.alembic_db_revision()
-        return self.backend(session=self.Session(bind=self.engine),
+        return self.backend_class(session=self.Session(bind=self.engine),
             celery_app=self.celery_app, db_revision=self.db_revision)
 
     def _initialize(self):

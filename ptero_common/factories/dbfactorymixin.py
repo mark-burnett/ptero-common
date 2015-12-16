@@ -23,7 +23,6 @@ class DBFactoryMixin(object):
         self.alembic_config = alembic_config(self.base_dir(), self.database_url)
         alembic_upgrade(self.alembic_config, self.engine)
         self.Session = sessionmaker()
-        setup_logging()
 
     def alembic_db_revision(self):
         return ScriptDirectory.from_config(
@@ -34,11 +33,6 @@ def alembic_upgrade(alembic_config, engine):
     with engine.begin() as connection:
         alembic_config.attributes['connection'] = connection
         command.upgrade(alembic_config, "head")
-
-
-def setup_logging():
-    logging.getLogger('sqlalchemy.engine').setLevel(getattr(logging,
-            os.environ.get('PTERO_LSF_ORM_LOG_LEVEL', 'WARN').upper()))
 
 
 def alembic_config(base_dir, db_string):

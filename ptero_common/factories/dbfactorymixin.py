@@ -4,7 +4,6 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import sessionmaker
 import abc
-import logging
 import os
 
 

@@ -18,6 +18,8 @@ def configure_celery_logging(service_name):
         os.environ.get('PTERO_%s_AMQP_LOG_LEVEL' % service_name, 'WARN'))
     logging.getLogger('kombu').setLevel(
         os.environ.get('PTERO_%s_KOMBU_LOG_LEVEL' % service_name, 'WARN'))
+    logging.getLogger('sqlalchemy.engine').setLevel(
+        os.environ.get('PTERO_%s_ORM_LOG_LEVEL' % service_name, 'WARN'))
 
 
 def configure_web_logging(service_name):
@@ -32,6 +34,8 @@ def configure_web_logging(service_name):
         os.environ.get('PTERO_%s_REQUESTS_LOG_LEVEL' % service_name, 'WARN'))
     logging.getLogger('werkzeug').setLevel(
         os.environ.get('PTERO_%s_WERKZEUG_LOG_LEVEL' % service_name, 'WARN'))
+    logging.getLogger('sqlalchemy.engine').setLevel(
+        os.environ.get('PTERO_%s_ORM_LOG_LEVEL' % service_name, 'WARN'))
 
 
 def configure_logging(level_env_var, time_env_var):

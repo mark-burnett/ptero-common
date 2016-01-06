@@ -55,7 +55,7 @@ class HTTP(celery.Task):
             "data": kwargs,
             "status_code": response.status_code,
             "text": response.text,
-            "headers": dict(response.headers),
+            "headers": lowercase_dict(response.headers),
         }
 
         if response.status_code < 200 or response.status_code >= 300:
@@ -70,6 +70,10 @@ class HTTP(celery.Task):
 
     def body(self, kwargs):
         return json.dumps(kwargs)
+
+
+def lowercase_dict(dict_like):
+    return {key.lower(): value for key, value in dict_like.iteritems()}
 
 
 class HTTPWithResult(HTTP):

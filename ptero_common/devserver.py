@@ -112,7 +112,8 @@ def run(logdir, procfile_path, workers, daemondir=None):
                 pidfile=TimeoutPIDLockFile(
                     os.path.join(daemondir, 'devserver.pid')),
                 stdout=open(os.path.join(daemondir, 'devserver.out'), 'w'),
-                stderr=open(os.path.join(daemondir, 'devserver.err'), 'w')):
+                stderr=open(os.path.join(daemondir, 'devserver.err'), 'w'),
+                initgroups=False):
             _run(logdir, procfile_path, workers)
     else:
         _run(logdir, procfile_path, workers)

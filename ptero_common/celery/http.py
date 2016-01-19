@@ -34,7 +34,7 @@ class HTTP(celery.Task):
                 timeout=10, logger=LOG)
         except ConnectionError:
             delay = DELAYS[self.request.retries]
-            LOG.info(
+            LOG.exception(
                 "A ConnectionError occured for while attempting to send "
                 "%s  %s, retrying in %s seconds. Attempt %d of %d.",
                 method.upper(), url, delay, self.request.retries + 1,
@@ -43,7 +43,7 @@ class HTTP(celery.Task):
 
         if response.status_code in CODES_TO_RETRY:
             delay = DELAYS[self.request.retries]
-            LOG.info(
+            LOG.warning(
                 "Got response (%s), retrying in %s seconds.  Attempt %d of %d.",
                 response.status_code, delay, self.request.retries + 1,
                 self.max_retries + 1)
@@ -59,7 +59,7 @@ class HTTP(celery.Task):
         }
 
         if response.status_code < 200 or response.status_code >= 300:
-            LOG.info("Got response (%s), returning response info.",
+            LOG.warning("Got response (%s), returning response info.",
                      response.status_code)
             return response_info
         elif not self.ignore_result:

@@ -69,7 +69,8 @@ class HTTP(celery.Task):
             response_info["json"] = response.json()
             return response_info
         else:
-            LOG.info("Got response (%s), ignoring result.", response.status_code)
+            LOG.info("Got response (%s), ignoring result.",
+                    response.status_code)
             return
 
     def body(self, kwargs):

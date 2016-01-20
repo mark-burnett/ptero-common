@@ -101,14 +101,13 @@ def _log_request(target, kind):
         request = Request(kind.upper(), *args, **kwargs_for_constructor)
 
         def log_with_extra(callable, *_args, **_kwargs):
-            extra={"method": kind.upper(), "url": request.url}
+            extra = {"method": kind.upper(), "url": request.url}
 
             if "extra" in _kwargs:
                 extra.update(_kwargs["extra"])
 
             _kwargs["extra"] = extra
             return callable(*_args, **_kwargs)
-
 
         label = '%s %s' % (kind.upper(), request.url)
         log_with_extra(logger.info, "Submitting HTTP %s", label)

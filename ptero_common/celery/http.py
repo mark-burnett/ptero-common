@@ -48,7 +48,7 @@ class HTTP(celery.Task):
                 "Got response (%s), retrying in %s seconds.  Attempt %d of %d.",
                 response.status_code, delay, self.request.retries + 1,
                 self.max_retries + 1, extra={"method": method.upper(),
-                    "status_code": respsonse.status_code, "url": url})
+                    "status_code": response.status_code, "url": url})
             self.retry(throw=False, countdown=delay)
 
         response_info = {
@@ -63,7 +63,7 @@ class HTTP(celery.Task):
         if is_not_200(response.status_code):
             LOG.warning("Got response (%s), returning response info.",
                     response.status_code, extra={"method": method.upper(),
-                    "status_code": respsonse.status_code, "url": url})
+                    "status_code": response.status_code, "url": url})
             return response_info
         elif not self.ignore_result:
             response_info["json"] = response.json()

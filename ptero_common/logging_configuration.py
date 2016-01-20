@@ -20,8 +20,11 @@ def configure_celery_logging(service_name):
         os.environ.get('PTERO_%s_KOMBU_LOG_LEVEL' % service_name, 'WARN'))
     logging.getLogger('sqlalchemy.engine').setLevel(
         os.environ.get('PTERO_%s_ORM_LOG_LEVEL' % service_name, 'WARN'))
-    logging.getLogger('ptero_common.celery.http').setLevel(
-        os.environ.get('PTERO_%s_HTTP_LOG_LEVEL' % service_name, 'WARN'))
+
+    env_var_name = 'PTERO_%s_HTTP_LOG_LEVEL' % service_name
+    if env_var_name in os.environ:
+        logging.getLogger('ptero_common.celery.http').setLevel(
+                os.environ[env_var_name])
 
 
 def configure_web_logging(service_name):

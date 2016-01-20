@@ -28,7 +28,6 @@ class HTTP(celery.Task):
 
     def run(self, method, url, **kwargs):
         try:
-            LOG.info("Submitting HTTP %s request to %s", method.upper(), url)
             response = getattr(logged_request, method.lower())(
                 url, data=self.body(kwargs),
                 headers={'Content-Type': 'application/json'},
@@ -67,13 +66,9 @@ class HTTP(celery.Task):
                     "status_code": respsonse.status_code, "url": url})
             return response_info
         elif not self.ignore_result:
-            LOG.info("Got response (%s), returning json decoded response info.",
-                     response.status_code)
             response_info["json"] = response.json()
             return response_info
         else:
-            LOG.info("Got response (%s), ignoring result.",
-                    response.status_code)
             return
 
     def body(self, kwargs):

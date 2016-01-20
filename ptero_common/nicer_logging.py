@@ -100,27 +100,42 @@ def _log_request(target, kind):
             del kwargs_for_constructor['timeout']
         request = Request(kind.upper(), *args, **kwargs_for_constructor)
 
+        def log_with_extra(callable, *_args, **_kwargs):
+            extra={"method": kind.upper(), "url": request.url}
+
+            if "extra" in _kwargs:
+                extra.update(_kwargs["extra"])
+
+            _kwargs["extra"] = extra
+            return callable(*_args, **_kwargs)
+
+
         label = '%s %s' % (kind.upper(), request.url)
-        logger.debug("Params for %s: %s", label, _pformat(request.params))
-        logger.debug("Headers for %s: %s", label, _pformat(request.headers))
-        logger.debug("Data for %s: %s", label, _pformat(request.data))
+        log_with_extra(logger.info, "Submitting HTTP %s", label)
+        log_with_extra(logger.debug, "Params for %s: %s", label,
+                _pformat(request.params))
+        log_with_extra(logger.debug, "Headers for %s: %s", label,
+                _pformat(request.headers))
+        log_with_extra(logger.debug, "Data for %s: %s", label,
+                _pformat(request.data))
 
         try:
             response = target(*args, **kwargs)
         except ConnectionError:
             raise
         except Exception:
-            logger.exception(
+            log_with_extra(logger.exception,
                 "Exception while sending %s:\n"
                 "  Args: %s\n"
                 "  Keyword Args: %s",
                 label, _pformat(args), _pformat(kwargs))
             raise
 
-        logger.debug("Got %s from %s", response.status_code, label)
-        logger.debug("Body of response from %s: %s", label,
+        log_with_extra(logger.info, "Got %s from %s", response.status_code,
+                label, extra={"status_code": response.status_code})
+        log_with_extra(logger.debug, "Body of response from %s: %s", label,
                 _pformat(response.text))
-        logger.debug("Headers in response from %s: %s", label,
+        log_with_extra(logger.debug, "Headers in response from %s: %s", label,
                 _pformat(response.headers))
 
         return response

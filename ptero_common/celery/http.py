@@ -60,7 +60,7 @@ class HTTP(celery.Task):
             "headers": lowercase_dict(response.headers),
         }
 
-        if response.status_code < 200 or response.status_code >= 300:
+        if is_not_200(response.status_code):
             LOG.warning("Got response (%s), returning response info.",
                     response.status_code, extra={"method": method.upper(),
                     "status_code": respsonse.status_code, "url": url})
@@ -73,6 +73,10 @@ class HTTP(celery.Task):
 
     def body(self, kwargs):
         return json.dumps(kwargs)
+
+
+def is_not_200(status_code):
+    return status_code < 200 or 300 <= status_code
 
 
 def lowercase_dict(dict_like):

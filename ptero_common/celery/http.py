@@ -34,19 +34,21 @@ class HTTP(celery.Task):
                 timeout=10, logger=LOG)
         except ConnectionError:
             delay = DELAYS[self.request.retries]
-            LOG.info(
+            LOG.exception(
                 "A ConnectionError occured for while attempting to send "
                 "%s  %s, retrying in %s seconds. Attempt %d of %d.",
                 method.upper(), url, delay, self.request.retries + 1,
-                self.max_retries + 1)
+                self.max_retries + 1, extra={"method": method.upper(),
+                    "url": url})
             self.retry(throw=False, countdown=delay)
 
         if response.status_code in CODES_TO_RETRY:
             delay = DELAYS[self.request.retries]
-            LOG.info(
+            LOG.warning(
                 "Got response (%s), retrying in %s seconds.  Attempt %d of %d.",
                 response.status_code, delay, self.request.retries + 1,
-                self.max_retries + 1)
+                self.max_retries + 1, extra={"method": method.upper(),
+                    "status_code": response.status_code, "url": url})
             self.retry(throw=False, countdown=delay)
 
         response_info = {
@@ -58,9 +60,10 @@ class HTTP(celery.Task):
             "headers": lowercase_dict(response.headers),
         }
 
-        if response.status_code < 200 or response.status_code >= 300:
-            LOG.info("Got response (%s), returning response info.",
-                     response.status_code)
+        if is_not_200(response.status_code):
+            LOG.warning("Got response (%s), returning response info.",
+                    response.status_code, extra={"method": method.upper(),
+                    "status_code": response.status_code, "url": url})
             return response_info
         elif not self.ignore_result:
             response_info["json"] = response.json()
@@ -70,6 +73,10 @@ class HTTP(celery.Task):
 
     def body(self, kwargs):
         return json.dumps(kwargs)
+
+
+def is_not_200(status_code):
+    return status_code < 200 or 300 <= status_code
 
 
 def lowercase_dict(dict_like):

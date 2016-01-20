@@ -93,11 +93,7 @@ def _log_request(target, kind):
         if 'logger' in kwargs:
             del kwargs['logger']
 
-        kwargs_for_constructor = kwargs.copy()
-        if 'timeout' in kwargs_for_constructor:
-            # timout is an argument to requests.get/post/ect but not
-            # Request.__init__
-            del kwargs_for_constructor['timeout']
+        kwargs_for_constructor = get_args_for_request_constructor(kwargs)
         request = Request(kind.upper(), *args, **kwargs_for_constructor)
 
         def log_with_extra(callable, *_args, **_kwargs):
@@ -139,6 +135,15 @@ def _log_request(target, kind):
 
         return response
     return wrapper
+
+
+def get_args_for_request_constructor(kwargs):
+    kwargs_for_constructor = kwargs.copy()
+    if 'timeout' in kwargs_for_constructor:
+        # timout is an argument to requests.get/post/ect but not
+        # Request.__init__
+        del kwargs_for_constructor['timeout']
+    return kwargs_for_constructor
 
 
 class LoggedRequest(object):

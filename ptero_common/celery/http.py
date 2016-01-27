@@ -2,7 +2,7 @@ import celery
 from ptero_common import nicer_logging
 from ptero_common.nicer_logging import logged_request
 import json
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 
 __all__ = ['HTTP', 'HTTPWithResult']
 
@@ -32,14 +32,15 @@ class HTTP(celery.Task):
                 url, data=self.body(kwargs),
                 headers={'Content-Type': 'application/json'},
                 timeout=10, logger=LOG)
-        except ConnectionError:
+        except (ConnectionError, Timeout) as e:
             delay = DELAYS[self.request.retries]
+            error_type = e.__class__.__name__
             LOG.exception(
-                "A ConnectionError occured for while attempting to send "
+                "A %s occured while attempting to send "
                 "%s  %s, retrying in %s seconds. Attempt %d of %d.",
-                method.upper(), url, delay, self.request.retries + 1,
-                self.max_retries + 1, extra={"method": method.upper(),
-                    "url": url})
+                error_type, method.upper(), url, delay,
+                self.request.retries + 1, self.max_retries + 1,
+                extra={"method": method.upper(), "url": url})
             self.retry(throw=False, countdown=delay)
 
         if response.status_code in CODES_TO_RETRY:

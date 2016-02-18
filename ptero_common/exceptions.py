@@ -1,0 +1,2 @@
+class NoSuchEntityError(RuntimeError):
+    pass

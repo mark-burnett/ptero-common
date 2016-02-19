@@ -2,7 +2,7 @@ from functools import wraps
 from ptero_common.exceptions import NoSuchEntityError
 
 
-def sends_404(target):
+def handles_no_such_entity_error(target):
     @wraps(target)
     def wrapper(*args, **kwargs):
         try:

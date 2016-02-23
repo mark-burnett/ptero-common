@@ -3,7 +3,7 @@ from os import environ
 from ptero_common.exceptions import NoSuchEntityError
 
 
-no_such_entity_status_code = int(environ.get(
+NO_SUCH_ENTITY_STATUS_CODE = int(environ.get(
     'PTERO_NO_SUCH_ENTITY_STATUS_CODE', 404))
 
 
@@ -13,6 +13,6 @@ def handles_no_such_entity_error(target):
         try:
             result = target(*args, **kwargs)
         except NoSuchEntityError as e:
-            return {'error': e.message}, no_such_entity_status_code
+            return {'error': e.message}, NO_SUCH_ENTITY_STATUS_CODE
         return result
     return wrapper

@@ -42,6 +42,7 @@ class HTTP(celery.Task):
                 self.request.retries + 1, self.max_retries + 1,
                 extra={"method": method.upper(), "url": url})
             self.retry(throw=False, countdown=delay)
+            return
 
         if response.status_code in CODES_TO_RETRY:
             delay = DELAYS[self.request.retries]
@@ -51,6 +52,7 @@ class HTTP(celery.Task):
                 self.max_retries + 1, extra={"method": method.upper(),
                     "status_code": response.status_code, "url": url})
             self.retry(throw=False, countdown=delay)
+            return
 
         response_info = {
             "method": method,

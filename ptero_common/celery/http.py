@@ -14,6 +14,7 @@ DELAYS = [1, 5, 10, 30, 60, 2 * MIN, 4 * MIN, 10 * MIN, 30 * MIN, 60 * MIN]
 DELAYS.extend([60 * MIN for i in range(72)])
 
 CODES_TO_RETRY = set([
+    404,  # Route or Resource Not Found
     408,  # Request Timeout
     500,  # Internal Server Error
     502,  # Bad Gateway
